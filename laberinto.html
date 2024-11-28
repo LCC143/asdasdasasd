@@ -37,6 +37,9 @@
             background-image: url('cable.png'); 
             background-color: transparent;
         }
+        .vistado
+            background-color: red;
+         }
         .goal {
             background-image: url('modem.webp'); 
             background-color: transparent;
@@ -225,6 +228,8 @@
     function movePlayer(dx, dy) {
         const newX = player.x + dx;
         const newY = player.y + dy;
+
+        
 
         if (newX >= 0 && newX < gridSize && newY >= 0 && newY < gridSize && gameGrid[newX][newY] !== 1) {
             gameGrid[player.x][player.y] = 0;
