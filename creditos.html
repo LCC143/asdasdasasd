@@ -90,10 +90,21 @@
             background-color: #0056b3;
         }
 
-        #creditos {
+        #creditos-container {
             margin-top: 30px;
+            padding: 20px;
+            background-color: rgba(0, 0, 0, 0.7); /* Fondo oscuro semitransparente */
+            border-radius: 15px;
+            width: 80%;
+            max-width: 400px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        #creditos {
             font-size: 18px;
             color: #fff;
+            text-align: center;
         }
 
         #creditos p {
@@ -112,6 +123,7 @@
                 transform: translateY(0);
             }
         }
+
     </style>
 </head>
 <body>
@@ -129,17 +141,13 @@
         <button onclick="mostrarExtras()">Extras</button>
     </div>
 
-    <!-- Audio de fondo para los créditos -->
-    <audio id="creditos-audio" autoplay loop>
-        <source src="creditos.mp3" type="audio/mp3">
-        Tu navegador no soporta la etiqueta de audio.
-    </audio>
-
     <!-- Créditos -->
-    <div id="creditos">
-        <p>Lautaro Cabrera: Programador principal, y básicamente el que hizo casi todo</p>
-        <p>Valentino Germain: Ayudó en varias ideas</p>
-        <p>Facundo Pereira: Apoyo moral</p>
+    <div id="creditos-container">
+        <div id="creditos">
+            <p>Lautaro Cabrera: Programador principal, y básicamente el que hizo casi todo</p>
+            <p>Valentino Germain: Ayudó en varias ideas</p>
+            <p>Facundo Pereira: Apoyo moral</p>
+        </div>
     </div>
 
     <script>
@@ -158,3 +166,4 @@
 
 </body>
 </html>
+
