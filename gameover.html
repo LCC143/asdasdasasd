@@ -30,7 +30,7 @@
 </head>
 <body>
     <div id="contenedor">
-        <h1>¡Game Over!</h1>
+        <h1>creo que perdiste (creo)</h1>
         <button onclick="retry()">Intentar de nuevo</button>
     </div>
     <img id="pc" src="pc.png" alt="PC">
@@ -46,7 +46,7 @@
         setTimeout(() => {
             document.getElementById('pc').style.display = 'none';
             document.getElementById('contenedor').style.display = 'block';
-        }, 4000);
+        }, 3000);
 
         function retry() {
             window.location.href = 'jueg.html';
