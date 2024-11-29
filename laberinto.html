@@ -12,7 +12,7 @@
             justify-content: center;
             align-items: center;
             height: 100vh;
-            background-color: #3a3a3a;
+            background-color: #f0f0f0;
         }
         #game-container {
             overflow: auto;
@@ -24,9 +24,6 @@
             gap: 1px;
             border: 2px solid #000;
         }
-        .visited {
-            background-color: red;  /* Color rojo para las casillas visitadas */
-        }       
         .cell {
             width: 20px;
             height: 20px;
@@ -53,7 +50,7 @@
             top: 20px;
             left: 20px;
             font-size: 24px;
-            color: rgb(0, 0, 0);
+            color: red;
             font-weight: bold;
         }
         .warning-text {
@@ -67,6 +64,7 @@
             opacity: 0;
             animation: shake 0.5s infinite;
         }
+
         @keyframes shake {
             0% { transform: translate(-50%, -50%) rotate(0deg); }
             25% { transform: translate(-50%, -50%) rotate(5deg); }
@@ -81,10 +79,10 @@
 <div id="game-container"></div>
 <div class="timer" id="timer">Tiempo: 60</div>
 
-<!-- Audio de fondo -->
+<!-- Agregar el archivo de audio -->
 <audio id="audio" src="paranoia.mp3" preload="auto"></audio>
 
-<!-- Mensaje de advertencia -->
+<!-- Texto de advertencia -->
 <div id="warning-text" class="warning-text">¡Te queda poco tiempo!</div>
 
 <script>
@@ -94,11 +92,13 @@
     let gameGrid = [];
     let timer = 60;
 
+    // Reproducir el audio
     window.onload = () => {
         const audio = document.getElementById('audio');
-        audio.play();
+        audio.play(); // Reproducir el audio
     };
 
+    // Genera el laberinto
     function generateMaze() {
         gameGrid = Array.from({ length: gridSize }, () => Array(gridSize).fill(1));
         const stack = [];
@@ -124,15 +124,54 @@
     }
 
     function placeGoalAndPlayer() {
-        gameGrid[goalPosition.x][goalPosition.y] = 2;
-        gameGrid[player.x][player.y] = 3;
+        let goalPlaced = false;
+        let playerPlaced = false;
+
+        while (!goalPlaced) {
+            const newGoalX = Math.floor(Math.random() * (gridSize - 2)) + 1;
+            const newGoalY = Math.floor(Math.random() * (gridSize - 2)) + 1;
+            if (gameGrid[newGoalX][newGoalY] === 0) {
+                goalPosition = { x: newGoalX, y: newGoalY };
+                gameGrid[goalPosition.x][goalPosition.y] = 2;
+                goalPlaced = true;
+            }
+        }
+
+        while (!playerPlaced) {
+            const newPlayerX = Math.floor(Math.random() * (gridSize - 2)) + 1;
+            const newPlayerY = Math.floor(Math.random() * (gridSize - 2)) + 1;
+            if (gameGrid[newPlayerX][newPlayerY] === 0 && !(newPlayerX === goalPosition.x && newPlayerY === goalPosition.y)) {
+                player = { x: newPlayerX, y: newPlayerY };
+                gameGrid[player.x][player.y] = 3;
+                playerPlaced = true;
+
+                // Colocar la PC inicial adyacente al jugador
+                const directions = [
+                    { dx: -1, dy: 0 },
+                    { dx: 1, dy: 0 },
+                    { dx: 0, dy: -1 },
+                    { dx: 0, dy: 1 }
+                ];
+
+                for (const dir of directions) {
+                    const startX = player.x + dir.dx;
+                    const startY = player.y + dir.dy;
+                    if (startX > 0 && startX < gridSize && startY > 0 && startY < gridSize && gameGrid[startX][startY] === 0) {
+                        gameGrid[startX][startY] = 4;
+                        break;
+                    }
+                }
+            }
+        }
     }
 
     function getValidNeighbors(x, y) {
         const neighbors = [];
         const directions = [
-            { dx: 0, dy: -2 }, { dx: 0, dy: 2 },
-            { dx: -2, dy: 0 }, { dx: 2, dy: 0 }
+            { dx: 0, dy: -2 },
+            { dx: 0, dy: 2 },
+            { dx: -2, dy: 0 },
+            { dx: 2, dy: 0 },
         ];
 
         directions.forEach(dir => {
@@ -142,30 +181,45 @@
                 neighbors.push([nx, ny]);
             }
         });
+
         return neighbors;
     }
 
     function renderMaze() {
-        const gameContainer = document.getElementById("game-container");
-        gameContainer.innerHTML = "";
+        const gameContainer = document.getElementById('game-container');
+        gameContainer.innerHTML = '';
+
         for (let i = 0; i < gridSize; i++) {
             for (let j = 0; j < gridSize; j++) {
-                const cell = document.createElement("div");
-                cell.classList.add("cell");
-                if (gameGrid[i][j] === 1) cell.classList.add("wall");
-                else if (gameGrid[i][j] === 2) cell.classList.add("goal");
-                else if (gameGrid[i][j] === 3) cell.classList.add("player");
-                else if (gameGrid[i][j] === 5) cell.classList.add("visited");  // Casilla visitada
+                const cell = document.createElement('div');
+                cell.classList.add('cell');
+
+                if (gameGrid[i][j] === 1) {
+                    cell.classList.add('wall');
+                } else if (gameGrid[i][j] === 2) {
+                    cell.classList.add('goal');
+                } else if (gameGrid[i][j] === 3) {
+                    cell.classList.add('player');  
+                }
+                if (gameGrid[i][j] === 4) {
+                    cell.classList.add('start'); 
+                }
+
                 gameContainer.appendChild(cell);
             }
         }
     }
 
     document.addEventListener('keydown', (e) => {
-        if (e.key === 'ArrowUp' || e.key === 'w') movePlayer(-1, 0);
-        else if (e.key === 'ArrowDown' || e.key === 's') movePlayer(1, 0);
-        else if (e.key === 'ArrowLeft' || e.key === 'a') movePlayer(0, -1);
-        else if (e.key === 'ArrowRight' || e.key === 'd') movePlayer(0, 1);
+        if (e.key === 'ArrowUp' || e.key === 'w') {
+            movePlayer(-1, 0);
+        } else if (e.key === 'ArrowDown' || e.key === 's') {
+            movePlayer(1, 0);
+        } else if (e.key === 'ArrowLeft' || e.key === 'a') {
+            movePlayer(0, -1);
+        } else if (e.key === 'ArrowRight' || e.key === 'd') {
+            movePlayer(0, 1);
+        }
     });
 
     function movePlayer(dx, dy) {
@@ -173,28 +227,38 @@
         const newY = player.y + dy;
 
         if (newX >= 0 && newX < gridSize && newY >= 0 && newY < gridSize && gameGrid[newX][newY] !== 1) {
-            gameGrid[player.x][player.y] = 5;  // Casilla actual como visitada
+            gameGrid[player.x][player.y] = 0;
             player.x = newX;
             player.y = newY;
-            gameGrid[player.x][player.y] = 3;  // Nueva posición del jugador
-            renderMaze();  // Actualizar la visualización
+            gameGrid[player.x][player.y] = 3;
+            renderMaze();
         }
+
         if (player.x === goalPosition.x && player.y === goalPosition.y) {
             alert("¡Has ganado!");
-            window.location.href = "final.html";
+            window.location.href = "inst2.html";  // Redirigir a una página de fin
         }
     }
 
+    // Iniciar el temporizador
     function startTimer() {
         const timerElement = document.getElementById('timer');
         const warningText = document.getElementById('warning-text');
         const interval = setInterval(() => {
             timer--;
             timerElement.textContent = `Tiempo: ${timer}`;
-            if (timer <= 10) warningText.style.opacity = 1;
+
+            if (timer <= 10) {
+                // Mostrar el mensaje de advertencia por 3 segundos cuando el tiempo se acerque a 10
+                warningText.style.opacity = 1;
+                setTimeout(() => {
+                    warningText.style.opacity = 0;
+                }, 3000);  // Desaparece después de 3 segundos
+            }
+
             if (timer <= 0) {
                 clearInterval(interval);
-                window.location.href = "gameover.html";
+                window.location.href = "gameover.html";  // Redirigir a una página de fin
             }
         }, 1000);
     }
@@ -206,3 +270,4 @@
 
 </body>
 </html>
+
